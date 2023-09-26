@@ -33,13 +33,7 @@ class Particle {
             this.speedY = Math.sqrt(grav * 2 * (canvas.height - y))
             let time = (this.speedY) / (grav)
 
-            // if (offset > 0){
-            //     this.speedX = (Math.sqrt(offset / (Math.sqrt((this.goalY * 8)/(grav))))) * (-1);
-            // }else{
-            //     this.speedX = (Math.sqrt(Math.abs(offset) / (Math.sqrt((this.goalY * 8)/(grav)))));
-            // }
-
-                this.speedX = (offset / time) * (-1);
+            this.speedX = (offset / time) * (-1);
             
             
         }else{
@@ -134,19 +128,49 @@ class Firework{
         this.particlesArray.forEach((particle) => {
             let toDo = particle.update()
             if (toDo[0] == 1){
-                this.createParticles(toDo[1], toDo[2])
+                switch(Math.floor(Math.random() * (7 - 1 + 1)) + 1){
+                    case 1:
+                        this.tripletBall(toDo[1], toDo[2])
+                        break;
+                    case 2:
+                        this.doubleBall(toDo[1], toDo[2])
+                        break;
+                    default:
+                        this.regularBall(toDo[1], toDo[2])
+                        break;
+                }
             };
         });
     };
 
-    createParticles = (x, y) => {
+    regularBall = (x, y) => {
         for (let i = 0; i < 6.28; i += 0.2){
-            // var variability =  Math.floor(Math.random() * (1 - 0.01 + 1) + 0.01);
             var variability = 0
             const particle = new Particle(x, y, Math.sin(i + variability), Math.cos(i + variability), hue, 50, 5, false);
             this.particlesArray.push(particle);
         }
     }
+
+    doubleBall = (x, y) => {
+        let j = 0;
+        for (let i = 0; i < 6.28; i += 0.2){
+            j++;
+            var variability = 0
+            const particle = new Particle(x, y, Math.sin(i + variability), Math.cos(i + variability), (hue + (j * 180)), 50, 5, false);
+            this.particlesArray.push(particle);
+        }
+    }
+
+    tripletBall = (x, y) => {
+        let j = 0;
+        for (let i = 0; i < 6.28; i += 0.2){
+            j++;
+            var variability = 0
+            const particle = new Particle(x, y, Math.sin(i + variability), Math.cos(i + variability), (hue + (j * 120)), 50, 5, false);
+            this.particlesArray.push(particle);
+        }
+    }
+
 
     shoot = (x, y) => {
         const particle = new Particle(x, y, 0, 0, hue, 100, 1, true)
@@ -169,10 +193,25 @@ const handleDrawing = (event) => {
     createFirework(a, b);
 };
 
+const startShow = (event) => {
+    let xlen = canvas.width;
+    let ylen = canvas.height;
+    createFirework((1 * (xlen))/(6), (ylen)/(3));
+    hue++;
+    createFirework((2 * (xlen))/(6), (ylen)/(3));
+    hue++;
+    createFirework((3 * (xlen))/(6), (ylen)/(3));
+    hue++;
+    createFirework((4 * (xlen))/(6), (ylen)/(3));
+    hue++;
+    createFirework((5 * (xlen))/(6), (ylen)/(3));
+    hue++;
+}
 
 const animate = () => {
     requestAnimationFrame(animate);
 
+    hue++
     //Fade away background when fireworks are done
     if (fireworkArray.length == 0){
         if (backgroundTransparency < 1)
@@ -203,6 +242,11 @@ const animate = () => {
 animate();
 
 canvas.addEventListener("click", handleDrawing);
+
+addEventListener("mousedown", event => {
+    if (event.button == 1) { // wheel click for mouse
+        startShow()
+    }});
 
 window.addEventListener("resize", () => {
     canvas.width = window.innerWidth;
